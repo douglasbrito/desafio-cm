@@ -3,6 +3,9 @@ AWS.config.update( {
   region: process.env.AWS_REGION
 });
 const dynamodb = new AWS.DynamoDB.DocumentClient();
+const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
+
+const BUCKET_NAME = process.env.S3_BUCKET_NAME;
 const Path = {
   BRAND: '/marca',
   CATEGORY: '/categoria',
@@ -71,8 +74,6 @@ async function queryDocument(opt) {
     ExpressionAttributeValues: expression.values
   };
 
-  console.log(`queryDocument params ${JSON.stringify(params)}`);
-
   return await dynamodb.query(params).promise().then((response) => {
     return response.Items;
   });
@@ -117,18 +118,18 @@ async function scanDynamoRecords(scanParams, itemArray) {
 }
 
 async function createDocument(tableName, requestBody) {
-  const params = {
-    TableName: tableName,
-    Item: requestBody
-  };
   const msgError = await validateBeforeCreate(tableName, requestBody);
   let response;
 
-  console.log(`createDocument params ${JSON.stringify(params)}`);
+  uploadImages(tableName, requestBody);
 
   if (msgError) {
     response = buildResponse(400, msgError);
   } else {
+    const params = {
+      TableName: tableName,
+      Item: requestBody
+    };
     response = await dynamodb.put(params).promise().then(() => {
       const body = {
         operation: 'SAVE',
@@ -285,4 +286,34 @@ function calcExpression(opt) {
     values: values,
     index: `${keys.join('-')}-index`
   };
+}
+
+async function uploadImages(tableName, requestBody) {
+  let files = [];
+  const uploaded = [];
+  if (tableName == TableName.PRODUCT && requestBody.imagens && (requestBody.imagens instanceof Array)) {
+    files = requestBody.imagens;
+  } else if (requestBody.imagem) {
+    files = [requestBody.imagem];
+  }
+
+  files.map((base64File) => {
+    const decodedFile = Buffer.from(base64File.replace(/^data:image\/\w+;base64,/, ""), 'base64');
+    const key = `imagens/${requestBody.id}-${new Date().toISOString()}.jpeg`;
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: decodedFile,
+      ContentType: 'image/jpeg'
+    };
+    s3.upload(params).promise();
+    uploaded.push({bucket: BUCKET_NAME, key: key});
+  });
+
+  if (uploaded.length > 0 && tableName == TableName.PRODUCT) {
+    requestBody.imagens = uploaded;
+  } else if (uploaded.length > 0) {
+    requestBody.imagem = uploaded[0];
+  }
+
 }
