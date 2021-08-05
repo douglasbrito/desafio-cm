@@ -12,12 +12,12 @@ Criadas as tabelas "marcas", "categorias" e "produtos" no DynamoDB.
 ## AWS Lambda (Node.js)
 
 Criada função Lambda "desafio-cm".
-	- Durante a criação da função foi alterada as definições de permissões padrão.
-	- Criada uma nova regra de permissões "desafio-cm-role" e anexadas as políticas:
+  - Durante a criação da função foi alterada as definições de permissões padrão.
+  - Criada uma nova regra de permissões "desafio-cm-role" e anexadas as políticas:
     - AmazonS3FullAccess
     - AmazonDynamoDBFullAccess
-		- CloudWatchLogsFullAccess
-	- Criada variável de ambiente "S3_BUCKET_NAME" com o nome do bucket S3 "desafio-cm-bucket-dev"
+    - CloudWatchLogsFullAccess
+  - Criada variável de ambiente "S3_BUCKET_NAME" com o nome do bucket S3 "desafio-cm-bucket-dev"
   
 ## API Gateway
 
