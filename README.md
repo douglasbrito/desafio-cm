@@ -24,3 +24,8 @@ Criada função Lambda "desafio-cm".
 Criada API Rest "desafio-cm" integrando com a Lambda Function desenvolvida.
 
 ![API Gateway](https://user-images.githubusercontent.com/2911880/128286051-6b2e4f44-1269-4fc7-b59c-b1a208329047.PNG)
+
+## Postman
+
+- URL da API: https://0esi0abcsb.execute-api.sa-east-1.amazonaws.com/dev
+- Exemplos no Postman de como consumir as APIs: https://www.postman.com/collections/d4328c1b6b39560e6d26
